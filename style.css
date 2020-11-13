@@ -7,21 +7,51 @@ body {
   font-family: 'Quicksand', sans-serif;
 }
 
+/*Navigation bar*/
+.brand-line {
+  border-bottom: 2px solid #FCA311;
+}
+
+.brand-btn {
+  background-color: #FCA311;
+}
+
 /*Styling Main Weather Card*/
-.main-weather-card {
+.weather-card {
   border-radius: 5px;
-  border-left: 3px solid#5E60CE;
+  border-left: 3px solid#14213d;
 }
 
 .weather-icon {
   font-size:96px;
-  color: #6830c375;
+  color: #E5E5E5;
+}
+
+
+/*Styling extended weather box*/
+ul>li  {
+  border-top: 5px solid white;
+  border-bottom: 5px solid #14213db6;
+}
+
+ul>li:hover{
+  border-top: 5px solid #FCA311;
+  border-bottom: 5px solid white;
+}
+
+a {
+  color: black;
+}
+
+
+a:hover {
+  color: black;
 }
 
 
 /*Colors for the website*/
 .color-main {
-  background-color: #7400B8;
+  background-color: #14213D;
 }
 
 .color-bg1 {
@@ -52,6 +82,8 @@ body {
   background-color: #64DFDF;
 }
 
+
+/*
 .days-container .tab-content {
   border: 1px solid #eee;
 }
@@ -67,3 +99,4 @@ body {
 .days-container .nav-link:hover:not(.active) {
   background-color: blue;
 }
+*/
