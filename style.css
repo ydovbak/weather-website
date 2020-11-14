@@ -29,20 +29,37 @@ body {
 
 
 /*Styling extended weather box*/
-ul>li  {
-  border-top: 5px solid white;
-  border-bottom: 5px solid #14213db6;
+.days-container .nav-item {
+  border-top: 1px solid transparent !important;
+}
+.days-container .nav-link {
+  border: 1px solid transparent !important;
+  border-top: 5px solid transparent !important;
+  border-bottom: 5px solid #14213db6 !important;
 }
 
-ul>li:hover{
-  border-top: 5px solid #FCA311;
-  border-bottom: 5px solid white;
+.days-container .nav-link:hover{
+  border-bottom: 5px solid #FCA311 !important;
+}
+
+.days-container .nav-link.active {
+  border-top: 5px solid #FCA311 !important;
+  border-bottom: 5px solid white !important;
+  border-right: 1px solid #ddd !important;
+  border-left: 1px solid #ddd !important;
+}
+
+.days-container .nav-item:first-child > .nav-link {
+  border-left: 1px solid white !important;
+}
+
+.days-container .nav-item:last-child > .nav-link {
+  border-right: 1px solid white !important;
 }
 
 a {
   color: black;
 }
-
 
 a:hover {
   color: black;
