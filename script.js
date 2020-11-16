@@ -13,13 +13,16 @@ window.onload = () => {
         });
     }
 
-    //const lat = 53.43333;
-    //const lon = -7.95;
+    const lat = 48.154890;
+    const lon = 23.134630;
 
     navigator.geolocation.getCurrentPosition((pos) => {
         console.log(pos.coords);
         getForecast5days(pos.coords.latitude, pos.coords.longitude, 'metric', handleForecastResponseCallback);
         getOneApiCall(pos.coords.latitude, pos.coords.longitude, 'metric', handleOneCallForecast);
+
+        //getForecast5days(lat, lon, 'metric', handleForecastResponseCallback);
+        //getOneApiCall(lat, lon, 'metric', handleOneCallForecast);
     }, err => {
         alert('could not determine geo location, please enter your city');
         console.error(err);
@@ -35,18 +38,8 @@ const handleOneCallForecast = (err, response) => {
     } else {
         console.log("Success");
         console.log(response);
-
-        //Filling in current weather into Main Weather Panel
-        $('#temperature').innerHTML = parseInt(response.current.temp) + " &#8451;";
-        $('#feels-like').innerHTML += " " + parseInt(response.current.feels_like) + '&#8451';
-        $('#humidity').innerText += " " + response.current.humidity + " %";
-        $('#wind-speed').innerText += " " + response.current.wind_speed + " m/s";
-        $('#wind-dir').innerText += " " + getCardinalDirection(response.current.wind_deg);
-        $('#uv-index').innerText += " " + response.current.uvi;
-        $('#clouds').innerText += response.current.clouds + " %";
-        $('#pressure').innerText += " " + (response.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
-        $('#visibility').innerText += " " + parseInt(response.current.visibility / 1000) + " km"; //Visibility is given in meters in API, converting to km
-        $('#weather-icon').src = `https://openweathermap.org/img/wn/${response.current.weather[0].icon}@4x.png`;
+        fillMainWeatherPanel(response);
+        fillWeeklyWeatherPanel(response);
 
     }
 };
@@ -92,6 +85,39 @@ const ajaxGetRequest = (url, callback) => {
     xhr.send();
 }
 
+const fillMainWeatherPanel = (response) => {
+    $('#temperature').innerHTML = parseInt(response.current.temp) + " &#8451;";
+    $('#feels-like').innerHTML += " " + parseInt(response.current.feels_like) + '&#8451';
+    $('#humidity').innerText += " " + response.current.humidity + " %";
+    $('#wind-speed').innerText += " " + response.current.wind_speed + " m/s";
+    $('#wind-dir').innerText += " " + getCardinalDirection(response.current.wind_deg);
+    $('#uv-index').innerText += " " + response.current.uvi;
+    $('#clouds').innerText += response.current.clouds + " %";
+    $('#pressure').innerText += " " + (response.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
+    $('#visibility').innerText += " " + parseInt(response.current.visibility / 1000) + " km"; //Visibility is given in meters in API, converting to km
+    $('#weather-icon').src = `https://openweathermap.org/img/wn/${response.current.weather[0].icon}@4x.png`;
+};
+
+const fillWeeklyWeatherPanel = (response) => {
+    //First saving all the information about weekly forecast into an array
+    const days = response.daily.slice(0, -1);
+    let html = "";
+
+    for (let day of days) {
+        let date = new Date(day.dt * 1000);         //Converting seconds into miliseconds and into Date object
+        console.log(day.dt);
+        html += `<div class="col"><p>${getNameOfDay(date)}</p>
+            <p>${date.getDate()}.${date.getMonth()+1}</p>
+            <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
+            <p>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt( day.temp.min)} &deg;</span></p>
+            <p>${day.weather[0].description}</p></div>`;
+    }
+
+
+
+    $("#weekly-panel").innerHTML = html;
+};
+
 
 //
 //Utility Methods
@@ -99,4 +125,19 @@ const ajaxGetRequest = (url, callback) => {
 function getCardinalDirection(angle) {
     const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW'];
     return directions[Math.round(angle / 45) % 8];
+}
+
+// This method translates the index of the tay into ordinary name
+// like Monday, Tuesday etc
+function getNameOfDay(day) {
+    var weekday = new Array(7);
+    weekday[0] = "Sunday";
+    weekday[1] = "Monday";
+    weekday[2] = "Tuesday";
+    weekday[3] = "Wednesday";
+    weekday[4] = "Thursday";
+    weekday[5] = "Friday";
+    weekday[6] = "Saturday";
+
+    return weekday[day.getDay()];
 }
