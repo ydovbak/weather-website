@@ -30,13 +30,24 @@ window.onload = () => {
 
 
 const handleOneCallForecast = (err, response) => {
-    if(err){
+    if (err) {
         console.log("Something happened");
     } else {
         console.log("Success");
         console.log(response);
 
-        //Filling in current weather into 
+        //Filling in current weather into Main Weather Panel
+        $('#temperature').innerHTML = parseInt(response.current.temp) + " &#8451;";
+        $('#feels-like').innerHTML += " " + parseInt(response.current.feels_like) + '&#8451';
+        $('#humidity').innerText += " " + response.current.humidity + " %";
+        $('#wind-speed').innerText += " " + response.current.wind_speed + " m/s";
+        $('#wind-dir').innerText += " " + getCardinalDirection(response.current.wind_deg);
+        $('#uv-index').innerText += " " + response.current.uvi;
+        $('#clouds').innerText += response.current.clouds + " %";
+        $('#pressure').innerText += " " + (response.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
+        $('#visibility').innerText += " " + parseInt(response.current.visibility / 1000) + " km"; //Visibility is given in meters in API, converting to km
+        $('#weather-icon').src = `https://openweathermap.org/img/wn/${response.current.weather[0].icon}@4x.png`;
+
     }
 };
 
@@ -79,4 +90,13 @@ const ajaxGetRequest = (url, callback) => {
 
     xhr.open("GET", url);
     xhr.send();
+}
+
+
+//
+//Utility Methods
+//
+function getCardinalDirection(angle) {
+    const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW'];
+    return directions[Math.round(angle / 45) % 8];
 }
