@@ -13,6 +13,7 @@
     <!-- Styling and javascript files -->
     <link href="style.css" rel="stylesheet">
     <script src="script.js"></script>
+    <script src="utility.js"></script>
 
     <!--Font awesome icons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
@@ -71,38 +72,26 @@
 
         <ul class="nav nav-tabs nav-justified text-center" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active " id="mon-tab" data-toggle="list" href="#tab-1">Today</a>
+                <a class="nav-link active " id="tab-1" data-toggle="list" href="#tab-1">Today</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="tue-tab" data-toggle="list" href="#tab-2">Tomorrow</a>
+                <a class="nav-link" id="tab-2" data-toggle="list" href="#tab-2">Tomorrow</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="wed-tab" data-toggle="list" href="#tab-3">Day after</a>
+                <a class="nav-link" id="tab-3" data-toggle="list" href="#tab-3">Day after</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="thu-tab" data-toggle="list" href="#tab-4">Day after</a>
+                <a class="nav-link" id="tab-4" data-toggle="list" href="#tab-4">Day after</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="fri-tab" data-toggle="list" href="#tab-5">Day after</a>
+                <a class="nav-link" id="tab-5" data-toggle="list" href="#tab-5">Day after</a>
             </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade active show" id="content-tab" role="tabpanel" aria-labelledby="first-tab">
-                <table class="table table-responsive-sm table-borderless text-center">
-                    <h4 id="day-of-week">Hello</h4>
-                    <tbody>
-                        <tr>
-                            <th>00:00</th>
-                            <th>03:00</th>
-                            <th>06:00</th>
-                            <th>09:00</th>
-                            <th>12:00</th>
-                            <th>15:00</th>
-                            <th>18:00</th>
-                            <th>21:00</th>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="row align-items-center" id="daily-panel">
+                    <p>Loading...</p>
+                </div>
             </div>
         </div>
     </div>

@@ -1,15 +1,18 @@
 "use strict";
 const ApiKey = 'f4a88f380ea81884743aec0bbf45f133';
+let tabId = 0;        //Variable for saving what day tab is clicked
+let weekDates = [];
+let forecastList;
 
 const $ = (selector) => document.querySelector(selector);
 
 window.onload = () => {
-
     const tabs = document.querySelectorAll(".nav-link");
-    for (let tab of tabs) {
-        tab.addEventListener('click', (event) => {
-            console.log('called', event);
-            $('#day-of-week').innerText = 'Date';
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener('click', (event) => {
+            tabId = i;  
+            console.log('clicked' + i);
+            fillHourlyBreakdown();
         });
     }
 
@@ -36,7 +39,6 @@ const handleOneCallForecast = (err, response) => {
     if (err) {
         console.log("Something happened");
     } else {
-        console.log("Success");
         console.log(response);
         fillMainWeatherPanel(response);
         fillWeeklyWeatherPanel(response);
@@ -51,6 +53,7 @@ const handleForecastResponseCallback = (err, response) => {
         const city = response.city;
         $('#city-name').innerText = city.name;
         console.log(response);
+        fillHourlyBreakdownPanel(response);
     }
 };
 
@@ -63,7 +66,7 @@ const getOneApiCall = (lat, lon, units, callback) => {
 const getForecast5days = (lat, lon, units, callback) => {
     const URL = `https://api.openweathermap.org/data/2.5/forecast?&units=${units}&lat=${lat}&lon=${lon}&appid=${ApiKey}`;
     ajaxGetRequest(URL, callback);
-}
+};
 
 const ajaxGetRequest = (url, callback) => {
     const xhr = new XMLHttpRequest();
@@ -83,7 +86,7 @@ const ajaxGetRequest = (url, callback) => {
 
     xhr.open("GET", url);
     xhr.send();
-}
+};
 
 const fillMainWeatherPanel = (response) => {
     $('#temperature').innerHTML = parseInt(response.current.temp) + " &#8451;";
@@ -105,39 +108,62 @@ const fillWeeklyWeatherPanel = (response) => {
 
     for (let day of days) {
         let date = new Date(day.dt * 1000);         //Converting seconds into miliseconds and into Date object
-        console.log(day.dt);
-        html += `<div class="col"><p>${getNameOfDay(date)}</p>
+        html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
             <p>${date.getDate()}.${date.getMonth()+1}</p>
             <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
             <p>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt( day.temp.min)} &deg;</span></p>
             <p>${day.weather[0].description}</p></div>`;
     }
-
-
-
     $("#weekly-panel").innerHTML = html;
 };
 
-
-//
-//Utility Methods
-//
-function getCardinalDirection(angle) {
-    const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW'];
-    return directions[Math.round(angle / 45) % 8];
+const fillHourlyBreakdownPanel = (response) => {
+    setTabsNames(response.list[0].dt); 
+    forecastList = response.list;
+    fillHourlyBreakdown();
 }
 
-// This method translates the index of the tay into ordinary name
-// like Monday, Tuesday etc
-function getNameOfDay(day) {
-    var weekday = new Array(7);
-    weekday[0] = "Sunday";
-    weekday[1] = "Monday";
-    weekday[2] = "Tuesday";
-    weekday[3] = "Wednesday";
-    weekday[4] = "Thursday";
-    weekday[5] = "Friday";
-    weekday[6] = "Saturday";
+const fillHourlyBreakdown = () => {
+    let htmlOutput = "";
 
-    return weekday[day.getDay()];
+    for( let forecast of forecastList) {
+        let date = new Date(forecast.dt * 1000); 
+        //Check if the tab chosen by user corresponds to datetime of forecast
+        
+        if (weekDates[tabId].getDay() == date.getDay())
+        {
+            //Writing to the table
+            htmlOutput += `<div class="col"><p>${date.getHours()}:00</p>
+                <p>${Math.round(forecast.main.temp)} &deg;</p>
+                <p><img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
+                <p></p></div>` ;
+        }
+        $('#daily-panel').innerHTML = htmlOutput;
+    }
+}
+
+//Set days of the tabs corresponding to API response data available
+//datetime - is the first datetime available in the response list
+const setTabsNames = (datetime) => {
+    let firstDate = new Date(datetime * 1000); 
+    weekDates.push(firstDate);
+
+    $('#tab-1').innerText = getNameOfDay(firstDate.getDay());
+
+    //Figure out consequent days ans set appropriate tab names
+    const secondDate = new Date(firstDate.getTime() + 86400000);
+    $('#tab-2').innerText = getNameOfDay(secondDate.getDay());
+    weekDates.push(secondDate);
+
+    const thirdDate = new Date(secondDate.getTime() + 86400000);
+    $('#tab-3').innerText = getNameOfDay(thirdDate.getDay());
+    weekDates.push(thirdDate);
+
+    const fourthDate = new Date(thirdDate.getTime() + 86400000);
+    $('#tab-4').innerText = getNameOfDay(fourthDate.getDay());
+    weekDates.push(fourthDate);
+
+    const fifthDate = new Date(fourthDate.getTime() + 86400000);
+    $('#tab-5').innerText = getNameOfDay(fifthDate.getDay());
+    weekDates.push(fifthDate);
 }
