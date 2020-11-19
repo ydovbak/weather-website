@@ -8,12 +8,20 @@ body {
 }
 
 /*Navigation bar*/
+.color-main {
+  background-color:#14213d;
+}
+
 .brand-line {
   border-bottom: 2px solid #FCA311;
 }
 
 .brand-btn {
   background-color: #FCA311;
+}
+
+.brand-color {          
+  color: #14213dc5;
 }
 
 /*Styling Main Weather Card*/
@@ -65,40 +73,13 @@ a:hover {
   color: black;
 }
 
-
-/*Colors for the website*/
-.color-main {
-  background-color: #14213D;
+/*3-hour forecast breakdown panel*/
+.temp-text {
+  font-weight: 900;
 }
 
-.color-bg1 {
-  background-color: #6930C3;
-}
 
-.color-bg2 {
-  background-color: #5E60CE;
-}
-
-.color-bg3 {
-  background-color: #5390D9;
-}
-
-.color-bg4 {
-  background-color: #4EA8DE;
-}
-
-.color-bg5 {
-  background-color: #48BFE3;
-}
-
-.color-bg6 {
-  background-color: #56CFE1;
-}
-
-.color-bg7 {
-  background-color: #64DFDF;
-}
-
+/*Map*/
 #mapid { height: 200px; }
 
 /*

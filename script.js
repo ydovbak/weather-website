@@ -120,7 +120,7 @@ const fillWeeklyWeatherPanel = (response) => {
         html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
             <p>${date.getDate()}.${date.getMonth() + 1}</p>
             <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
-            <p>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt(day.temp.min)} &deg;</span></p>
+            <h3>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt(day.temp.min)} &deg;</span></h3>
             <p>${day.weather[0].description}</p></div>`;
     }
     $("#weekly-panel").innerHTML = html;
@@ -142,12 +142,11 @@ const fillHourlyBreakdown = () => {
         if (weekDates[tabId].getDay() == date.getDay()) {
             //Writing to the table
             htmlOutput += `<div class="col"><p> <span class='brand-line'>${date.getHours()}:00</span></p>
-                <p>${Math.round(forecast.main.temp)} &deg;</p>
-                <p><img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
-                <p>${forecast.clouds.all}%</p>
-                <p>${forecast.main.humidity}%</p>
-                <p>${forecast.main.pressure/100} mb</p>
-                <p>${ getCardinalArrow(forecast.wind.deg)} ${forecast.wind.speed} m/s</p>
+                <p class='my-2 py-2 temp-text'>${Math.round(forecast.main.temp)} &deg; <img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
+                <p class='pb-1 mb-0'><i class="fas fa-cloud brand-color"></i> ${forecast.clouds.all}%</p>
+                <p class='py-1 my-0'><i class="fas fa-tint brand-color"></i> ${forecast.main.humidity}%</p>
+                <p class='py-1 my-0'><i class="fas fa-stopwatch brand-color"></i> ${forecast.main.pressure/100} mb</p>
+                <p class='pt-1 mt-0'> <span class='brand-color'>${ getCardinalArrow(forecast.wind.deg)}</span> ${forecast.wind.speed} m/s</p>
                 </div>` ;
         }
         $('#daily-panel').innerHTML = htmlOutput;
