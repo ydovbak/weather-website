@@ -2,16 +2,10 @@
 const ApiKey = 'f4a88f380ea81884743aec0bbf45f133';
 let lat;
 let lon;
-let tabId = 0;                      //Saves the index of day tab that was clicked
-let weekDates = [];                 //List of next 5 dates (Used for searching )
-let forecastThreeHoursList;         //Saves data about 3 hour forecast per datetime units
-let sevenDaysWeather = [];          //Weather for next seven days
-let currWeather;                    //Current weather
-
-// Variables for measurement unit manipulation
-let unit = 'metric';     
-let temp = "&deg;C";
-let distance = "m";
+let tabId = 0;              // the index of day tab that was clicked
+let unit = 'metric';        // measurement units of the web page         
+let temp = "&deg;C";        // format of temperature output (C/F)
+let distance = "m";         // format of the distance output (meters/miles)
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -80,13 +74,9 @@ const handleOneCallForecast = (err, response) => {
     if (err) {
         console.log("Something happened");
     } else {
-        //console.log(response);
-        //First saving all the information about current weather and about weekly forecast for nex 7 days
-        sevenDaysWeather = response.daily.slice(0, -1);
-        currWeather = response;
-        fillMainWeatherPanel();
-        fillWeeklyWeatherPanel();
-
+        fillMainWeatherPanel(response);
+        fillWeeklyWeatherPanel(response);
+        console.log(response);
     }
 };
 
@@ -139,7 +129,7 @@ const updateData = (lat, lon, unit) => {
 };
 
 // Filling data about current weather into front panel shown to user
-const fillMainWeatherPanel = () => {
+const fillMainWeatherPanel = (currWeather) => {
     $('#temperature').innerHTML = parseInt(currWeather.current.temp) + " " +  temp;
     $('#feels-like').innerHTML = " " + parseInt(currWeather.current.feels_like) + " " +  temp;
     $('#humidity').innerText = " " + currWeather.current.humidity + " %";
@@ -161,18 +151,17 @@ const fillMainWeatherPanel = () => {
 
 // Filling data in a form of 3 hour forecast for next 5 days
 const fillThreeHourBreakdownPanel = (response) => {
-    setTabsNames(response.list[0].dt);
-    forecastThreeHoursList = response.list;
-    fillHourlyBreakdown();
+    const weekDates = setTabsNames(response.list[0].dt);
+    const forecastThreeHoursList = response.list;
+    fillHourlyBreakdown(weekDates, forecastThreeHoursList);
 }   
 
-const fillHourlyBreakdown = () => {
+const fillHourlyBreakdown = (weekDates, forecastThreeHoursList) => {
     let htmlOutput = "";
-    console.log (forecastThreeHoursList);
     for (let forecast of forecastThreeHoursList) {
         let date = new Date(forecast.dt * 1000);
-        //Check if the tab chosen by user corresponds to datetime of forecast
 
+        //Check if the tab chosen by user corresponds to datetime of forecast
         if (weekDates[tabId].getDay() == date.getDay()) {
             //Writing to the table
             htmlOutput += `<div class="col"><p> <span class='brand-line'>${date.getHours()}:00</span></p>
@@ -187,7 +176,11 @@ const fillHourlyBreakdown = () => {
     }
 }
 
-const fillWeeklyWeatherPanel = () => {
+const fillWeeklyWeatherPanel = (response) => {
+    //Next seven days forecast is giving us records of weather forecast for today AND next 7 days
+    //which is 8 days in total. We want to show weekly forecast for today and next 6 days, therefore
+    //using slice() metod we get rid of an extra day
+    let sevenDaysWeather = response.daily.slice(0, -1);
     let html = "";
 
     for (let day of sevenDaysWeather) {
@@ -206,6 +199,7 @@ const fillWeeklyWeatherPanel = () => {
 //Set days of the tabs corresponding to API response data available
 //datetime - is the first datetime available in the response list
 const setTabsNames = (datetime) => {
+    let weekDates = [];
     let firstDate = new Date(datetime * 1000);
     weekDates.push(firstDate);
 
@@ -227,4 +221,6 @@ const setTabsNames = (datetime) => {
     const fifthDate = new Date(fourthDate.getTime() + 86400000);
     $('#tab-5').innerText = getNameOfDay(fifthDate.getDay());
     weekDates.push(fifthDate);
+
+    return weekDates;
 }
