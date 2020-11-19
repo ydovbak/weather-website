@@ -80,8 +80,10 @@ a:hover {
 
 
 /*Map*/
-#mapid { height: 350px;
-width: 500px; }
+#mapid {
+  height: 350px;
+  width: 100%;
+}
 
 /*
 .days-container .tab-content {

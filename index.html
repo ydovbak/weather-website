@@ -33,12 +33,12 @@
         <div class="container my-0">
             <h4 class="mb-1 brand-line float-left">Weather</h4>
 
-            <div class="dropdown float-right">
-                <button class="btn brand-btn dropdown-toggle" type="button" data-toggle="dropdown">Temperature Reading
+            <div class="dropdown float-right mr-3 pr-3">
+                <button class="btn brand-btn dropdown-toggle" id="dropdown" type="button" data-toggle="dropdown">Metric
                     <span class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Fahrenheit</a></li>
-                    <li><a class="dropdown-item" href="#">Celsius</a></li>
+                    <li><a class="dropdown-item" id="imperial">Imperial (Fahrenheit, Miles)</a></li>
+                    <li><a class="dropdown-item" id="metric">Metric (Celsius, Meters)</a></li>
                 </ul>
             </div>
 
@@ -48,22 +48,22 @@
     <!--Main Weather panel-->
     <div class="container px-2 py-3 mb-4 shadow-sm weather-card">
         <div class="row align-items-center">
-            <div class="col-3 text-center">
+            <div class="col-lg-3 text-center">
                 <h1><span class="brand-line" id="city-name">Loading...</span></h1>
                 <h3 id="temperature"></h3>
                 <span><img id="weather-icon"></span>
             </div>
-            <div class="col-3">
-                <p id="feels-like">Feels like: </p>
-                <p id="humidity">Humidity: </p>
-                <p id="wind-speed">Wind speed: </p>
-                <p id="wind-dir">Wind direction: </p>
-                <p id="uv-index">UV index: </p>
-                <p id="pressure">Pressure: </p>
-                <p id="visibility">Visibility: </p>
-                <p id="clouds">Cloudiness: </p>
+            <div class="col-lg-3">
+                <p>Feels like: <span id="feels-like"></span> </p>
+                <p></p>Humidity: <span id="humidity"></span></p>
+                <p>Wind speed: <span id="wind-speed"></span></p>
+                <p>Wind direction: <span id="wind-dir"></span></p>
+                <p>UV index: <span  id="uv-index"></span></p>
+                <p>Pressure: <span id="pressure"></span></p>
+                <p>Visibility: <span  id="visibility"></span></p>
+                <p>Cloudiness: <span id="clouds"></span></p>
             </div>
-            <div class="co6">
+            <div class="col-lg-6">
                 <!-- Map View -->
                 <div id="mapid"></div>
             </div>

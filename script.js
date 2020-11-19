@@ -1,8 +1,17 @@
 "use strict";
 const ApiKey = 'f4a88f380ea81884743aec0bbf45f133';
-let tabId = 0;        //Variable for saving what day tab is clicked
-let weekDates = [];
-let forecastList;
+let lat;
+let lon;
+let tabId = 0;                      //Saves the index of day tab that was clicked
+let weekDates = [];                 //List of next 5 dates (Used for searching )
+let forecastThreeHoursList;         //Saves data about 3 hour forecast per datetime units
+let sevenDaysWeather = [];          //Weather for next seven days
+let currWeather;                    //Current weather
+
+// Variables for measurement unit manipulation
+let unit = 'metric';     
+let temp = "&deg;C";
+let distance = "m";
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -16,16 +25,13 @@ window.onload = () => {
         });
     }
 
-    // const lat = 48.154890;
-    // const lon = 23.134630;
-
     navigator.geolocation.getCurrentPosition((pos) => {
         console.log(pos.coords);
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
+        lat = pos.coords.latitude;
+        lon = pos.coords.longitude;
 
-        getForecast5days(lat, lon, 'metric', handleForecastResponseCallback);
-        getOneApiCall(lat, lon, 'metric', handleOneCallForecast);
+        getForecast5days(lat, lon, unit, handleForecastResponseCallback);
+        getOneApiCall(lat, lon, unit, handleOneCallForecast);
 
         // initialise leaflet maps
         const map = L.map('mapid').setView([lat, lon], 13);
@@ -33,24 +39,53 @@ window.onload = () => {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        //getForecast5days(lat, lon, 'metric', handleForecastResponseCallback);
-        //getOneApiCall(lat, lon, 'metric', handleOneCallForecast);
     }, err => {
         alert('could not determine geo location, please enter your city');
         console.error(err);
     });
 
+    // Imperial - Metric Click listeners 
+    $("#imperial").addEventListener('click', () => {
+        //Check if units should be changed
+        if (unit == "metric") {
+            $('#dropdown').innerText = "Imperial";
+            unit = "imperial";
+            
+            //Resetting Units
+            temp = "&deg;F";
+            distance = "ml";
+
+            //Resetting the data
+            updateData(lat, lon, unit);  
+        }
+
+    })
+
+    $("#metric").addEventListener('click', () => {
+        if (unit == "imperial") { 
+            $('#dropdown').innerText = "Metric";
+            unit = "metric";
+            
+            //Resetting units
+            temp = "&deg;C";
+            distance = "m";
+
+            //Resetting the data
+            updateData(lat, lon, unit);
+        }
+    })
 };
-
-
 
 const handleOneCallForecast = (err, response) => {
     if (err) {
         console.log("Something happened");
     } else {
-        console.log(response);
-        fillMainWeatherPanel(response);
-        fillWeeklyWeatherPanel(response);
+        //console.log(response);
+        //First saving all the information about current weather and about weekly forecast for nex 7 days
+        sevenDaysWeather = response.daily.slice(0, -1);
+        currWeather = response;
+        fillMainWeatherPanel();
+        fillWeeklyWeatherPanel();
 
     }
 };
@@ -62,18 +97,18 @@ const handleForecastResponseCallback = (err, response) => {
         const city = response.city;
         $('#city-name').innerText = city.name;
         console.log(response);
-        fillHourlyBreakdownPanel(response);
+        fillThreeHourBreakdownPanel(response);
     }
 };
 
-const getOneApiCall = (lat, lon, units, callback) => {
+const getOneApiCall = (lat, lon, unit, callback) => {
     const parts = 'minutely,hourly,alerts';
-    const URL = `https://api.openweathermap.org/data/2.5/onecall?units=${units}&lat=${lat}&lon=${lon}&exclude=${parts}&appid=${ApiKey}`;
+    const URL = `https://api.openweathermap.org/data/2.5/onecall?units=${unit}&lat=${lat}&lon=${lon}&exclude=${parts}&appid=${ApiKey}`;
     ajaxGetRequest(URL, callback);
 };
 
-const getForecast5days = (lat, lon, units, callback) => {
-    const URL = `https://api.openweathermap.org/data/2.5/forecast?&units=${units}&lat=${lat}&lon=${lon}&appid=${ApiKey}`;
+const getForecast5days = (lat, lon, unit, callback) => {
+    const URL = `https://api.openweathermap.org/data/2.5/forecast?&units=${unit}&lat=${lat}&lon=${lon}&appid=${ApiKey}`;
     ajaxGetRequest(URL, callback);
 };
 
@@ -97,61 +132,76 @@ const ajaxGetRequest = (url, callback) => {
     xhr.send();
 };
 
-const fillMainWeatherPanel = (response) => {
-    $('#temperature').innerHTML = parseInt(response.current.temp) + " &#8451;";
-    $('#feels-like').innerHTML += " " + parseInt(response.current.feels_like) + '&#8451';
-    $('#humidity').innerText += " " + response.current.humidity + " %";
-    $('#wind-speed').innerText += " " + response.current.wind_speed + " m/s";
-    $('#wind-dir').innerText += " " + getCardinalDirectionAndArrow(response.current.wind_deg);
-    $('#uv-index').innerText += " " + response.current.uvi;
-    $('#clouds').innerText += response.current.clouds + " %";
-    $('#pressure').innerText += " " + (response.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
-    $('#visibility').innerText += " " + parseInt(response.current.visibility / 1000) + " km"; //Visibility is given in meters in API, converting to km
-    $('#weather-icon').src = `https://openweathermap.org/img/wn/${response.current.weather[0].icon}@4x.png`;
+const updateData = (lat, lon, unit) => {
+    //Making API calls with new parameters
+    getForecast5days(lat, lon, unit, handleForecastResponseCallback);
+    getOneApiCall(lat, lon, unit, handleOneCallForecast); 
 };
 
-const fillWeeklyWeatherPanel = (response) => {
-    //First saving all the information about weekly forecast into an array
-    const days = response.daily.slice(0, -1);
-    let html = "";
+// Filling data about current weather into front panel shown to user
+const fillMainWeatherPanel = () => {
+    $('#temperature').innerHTML = parseInt(currWeather.current.temp) + " " +  temp;
+    $('#feels-like').innerHTML = " " + parseInt(currWeather.current.feels_like) + " " +  temp;
+    $('#humidity').innerText = " " + currWeather.current.humidity + " %";
+    $('#wind-speed').innerText = " " + currWeather.current.wind_speed + " " + distance + "/s";
+    $('#wind-dir').innerText = " " + getCardinalDirectionAndArrow(currWeather.current.wind_deg);
+    $('#uv-index').innerText = " " + currWeather.current.uvi;
+    $('#clouds').innerText = currWeather.current.clouds + " %";
+    $('#pressure').innerText = " " + (currWeather.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
+    $('#weather-icon').src = `https://openweathermap.org/img/wn/${currWeather.current.weather[0].icon}@4x.png`;
 
-    for (let day of days) {
-        let date = new Date(day.dt * 1000);         //Converting seconds into miliseconds and into Date object
-        html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
-            <p>${date.getDate()}.${date.getMonth() + 1}</p>
-            <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
-            <h3>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt(day.temp.min)} &deg;</span></h3>
-            <p>${day.weather[0].description}</p></div>`;
+    //Setting visibility distance
+    if (unit == "metric") {
+        //Visibility is given in meters in API, converting to km
+        $('#visibility').innerText = " " + (parseInt(currWeather.current.visibility)/1000) + " km";
+    } else {
+        $('#visibility').innerText = " " + currWeather.current.visibility + " miles";
     }
-    $("#weekly-panel").innerHTML = html;
 };
 
-const fillHourlyBreakdownPanel = (response) => {
+// Filling data in a form of 3 hour forecast for next 5 days
+const fillThreeHourBreakdownPanel = (response) => {
     setTabsNames(response.list[0].dt);
-    forecastList = response.list;
+    forecastThreeHoursList = response.list;
     fillHourlyBreakdown();
-}
+}   
 
 const fillHourlyBreakdown = () => {
     let htmlOutput = "";
-    console.log(forecastList);
-    for (let forecast of forecastList) {
+    console.log (forecastThreeHoursList);
+    for (let forecast of forecastThreeHoursList) {
         let date = new Date(forecast.dt * 1000);
         //Check if the tab chosen by user corresponds to datetime of forecast
 
         if (weekDates[tabId].getDay() == date.getDay()) {
             //Writing to the table
             htmlOutput += `<div class="col"><p> <span class='brand-line'>${date.getHours()}:00</span></p>
-                <p class='my-2 py-2 temp-text'>${Math.round(forecast.main.temp)} &deg; <img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
+                <p class='my-2 py-2 temp-text'>${Math.round(forecast.main.temp)} ${temp} <img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
                 <p class='pb-1 mb-0'><i class="fas fa-cloud brand-color"></i> ${forecast.clouds.all}%</p>
                 <p class='py-1 my-0'><i class="fas fa-tint brand-color"></i> ${forecast.main.humidity}%</p>
-                <p class='py-1 my-0'><i class="fas fa-stopwatch brand-color"></i> ${forecast.main.pressure/100} mb</p>
-                <p class='pt-1 mt-0'> <span class='brand-color'>${ getCardinalArrow(forecast.wind.deg)}</span> ${forecast.wind.speed} m/s</p>
+                <p class='py-1 my-0'><i class="fas fa-stopwatch brand-color"></i> ${forecast.main.pressure / 100} mb</p>
+                <p class='pt-1 mt-0'> <span class='brand-color'>${getCardinalArrow(forecast.wind.deg)}</span> ${forecast.wind.speed} ${distance}/s</p>
                 </div>` ;
         }
         $('#daily-panel').innerHTML = htmlOutput;
     }
 }
+
+const fillWeeklyWeatherPanel = () => {
+    let html = "";
+
+    for (let day of sevenDaysWeather) {
+        let date = new Date(day.dt * 1000);         //Converting seconds into miliseconds and into Date object
+        html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
+            <p>${date.getDate()}.${date.getMonth() + 1}</p>
+            <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
+            <h3>${parseInt(day.temp.max)}${temp} <span class="text-muted">${parseInt(day.temp.min)}${temp}</span></h3>
+            <p>${day.weather[0].description}</p></div>`;
+    }
+    $("#weekly-panel").innerHTML = html;
+};
+
+
 
 //Set days of the tabs corresponding to API response data available
 //datetime - is the first datetime available in the response list
