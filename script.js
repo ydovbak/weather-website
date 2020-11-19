@@ -24,8 +24,8 @@ window.onload = () => {
         lat = pos.coords.latitude;
         lon = pos.coords.longitude;
 
-        getForecast5days(lat, lon, unit, handleForecastResponseCallback);
-        getOneApiCall(lat, lon, unit, handleOneCallForecast);
+        //PErforming API calls and outputing data into UI
+        updateUI(lat, lon, unit);
 
         // initialise leaflet maps
         const map = L.map('mapid').setView([lat, lon], 13);
@@ -41,31 +41,18 @@ window.onload = () => {
     // Imperial - Metric Click listeners 
     $("#imperial").addEventListener('click', () => {
         //Check if units should be changed
-        if (unit == "metric") {
-            $('#dropdown').innerText = "Imperial";
+        if (unit != "imperial") {
             unit = "imperial";
-            
-            //Resetting Units
-            temp = "&deg;F";
-            distance = "ml";
-
-            //Resetting the data
-            updateData(lat, lon, unit);  
+            //Resetting the data in the UI
+            updateUI(lat, lon, unit);   
         }
-
     })
 
     $("#metric").addEventListener('click', () => {
-        if (unit == "imperial") { 
-            $('#dropdown').innerText = "Metric";
+        if (unit != "metric") { 
             unit = "metric";
-            
-            //Resetting units
-            temp = "&deg;C";
-            distance = "m";
-
-            //Resetting the data
-            updateData(lat, lon, unit);
+            //Resetting the data in the UI
+            updateUI(lat, lon, unit);   
         }
     })
 };
@@ -122,7 +109,17 @@ const ajaxGetRequest = (url, callback) => {
     xhr.send();
 };
 
-const updateData = (lat, lon, unit) => {
+const updateUI = (lat, lon, unit) => {
+//Seting units and dropdown
+    if(unit == "metric") {
+        $('#dropdown').innerText = "Metric";
+        temp = "&deg;C";
+        distance = "m";
+    } else {
+        $('#dropdown').innerText = "Imperial";
+        temp = "&deg;F";
+        distance = "ml";
+    }
     //Making API calls with new parameters
     getForecast5days(lat, lon, unit, handleForecastResponseCallback);
     getOneApiCall(lat, lon, unit, handleOneCallForecast); 
@@ -184,7 +181,8 @@ const fillWeeklyWeatherPanel = (response) => {
     let html = "";
 
     for (let day of sevenDaysWeather) {
-        let date = new Date(day.dt * 1000);         //Converting seconds into miliseconds and into Date object
+        //Converting seconds into miliseconds and into Date object
+        let date = new Date(day.dt * 1000);         
         html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
             <p>${date.getDate()}.${date.getMonth() + 1}</p>
             <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
@@ -198,6 +196,7 @@ const fillWeeklyWeatherPanel = (response) => {
 
 //Set days of the tabs corresponding to API response data available
 //datetime - is the first datetime available in the response list
+//of three hour weather API call
 const setTabsNames = (datetime) => {
     let weekDates = [];
     let firstDate = new Date(datetime * 1000);
