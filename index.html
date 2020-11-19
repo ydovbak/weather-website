@@ -30,15 +30,16 @@
 <body>
     <!--Navigation Bar-->
     <div class="d-flex text-white shadow-sm py-3 align-items-center mb-4 color-main">
-        <div class="container my-0 d-flex align-items-center">
-            <h4 class="mb-1 brand-line">Weather</h4>
-            <div class="input-group ml-5">
-                <input type="text" class="form-control" placeholder="Enter a city">
-                <div class="input-group-append">
-                    <button id="search-btn" class="btn btn-warning text-white">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+        <div class="container my-0">
+            <h4 class="mb-1 brand-line float-left">Weather</h4>
+
+            <div class="dropdown float-right">
+                <button class="btn brand-btn dropdown-toggle" type="button" data-toggle="dropdown">Temperature Reading
+                    <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Fahrenheit</a></li>
+                    <li><a class="dropdown-item" href="#">Celsius</a></li>
+                </ul>
             </div>
 
         </div>
@@ -79,7 +80,6 @@
     </div>
 
     <!--Daily temperatures breakdown-->
-
     <div class="container days-container px-5 py-3 mb-4 shadow-sm weather-card">
 
         <ul class="nav nav-tabs nav-justified text-center" role="tablist">
