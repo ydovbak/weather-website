@@ -102,7 +102,7 @@ const fillMainWeatherPanel = (response) => {
     $('#feels-like').innerHTML += " " + parseInt(response.current.feels_like) + '&#8451';
     $('#humidity').innerText += " " + response.current.humidity + " %";
     $('#wind-speed').innerText += " " + response.current.wind_speed + " m/s";
-    $('#wind-dir').innerText += " " + getCardinalDirection(response.current.wind_deg);
+    $('#wind-dir').innerText += " " + getCardinalDirectionAndArrow(response.current.wind_deg);
     $('#uv-index').innerText += " " + response.current.uvi;
     $('#clouds').innerText += response.current.clouds + " %";
     $('#pressure').innerText += " " + (response.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
@@ -134,17 +134,21 @@ const fillHourlyBreakdownPanel = (response) => {
 
 const fillHourlyBreakdown = () => {
     let htmlOutput = "";
-
+    console.log(forecastList);
     for (let forecast of forecastList) {
         let date = new Date(forecast.dt * 1000);
         //Check if the tab chosen by user corresponds to datetime of forecast
 
         if (weekDates[tabId].getDay() == date.getDay()) {
             //Writing to the table
-            htmlOutput += `<div class="col"><p>${date.getHours()}:00</p>
+            htmlOutput += `<div class="col"><p> <span class='brand-line'>${date.getHours()}:00</span></p>
                 <p>${Math.round(forecast.main.temp)} &deg;</p>
                 <p><img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
-                <p></p></div>` ;
+                <p>${forecast.clouds.all}%</p>
+                <p>${forecast.main.humidity}%</p>
+                <p>${forecast.main.pressure/100} mb</p>
+                <p>${ getCardinalArrow(forecast.wind.deg)} ${forecast.wind.speed} m/s</p>
+                </div>` ;
         }
         $('#daily-panel').innerHTML = htmlOutput;
     }

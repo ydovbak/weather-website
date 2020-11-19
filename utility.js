@@ -13,8 +13,13 @@ function Forecast(temp, clouds, icon, humidity, preassure, windDeg, windSpeed, t
 
 }
 
-function getCardinalDirection(angle) {
+function getCardinalDirectionAndArrow(angle) {
     const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW'];
+    return directions[Math.round(angle / 45) % 8];
+}
+
+function getCardinalArrow(angle) {
+    const directions = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
     return directions[Math.round(angle / 45) % 8];
 }
 
