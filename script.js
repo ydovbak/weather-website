@@ -10,19 +10,28 @@ window.onload = () => {
     const tabs = document.querySelectorAll(".nav-link");
     for (let i = 0; i < tabs.length; i++) {
         tabs[i].addEventListener('click', (event) => {
-            tabId = i;  
+            tabId = i;
             console.log('clicked' + i);
             fillHourlyBreakdown();
         });
     }
 
-    const lat = 48.154890;
-    const lon = 23.134630;
+    // const lat = 48.154890;
+    // const lon = 23.134630;
 
     navigator.geolocation.getCurrentPosition((pos) => {
         console.log(pos.coords);
-        getForecast5days(pos.coords.latitude, pos.coords.longitude, 'metric', handleForecastResponseCallback);
-        getOneApiCall(pos.coords.latitude, pos.coords.longitude, 'metric', handleOneCallForecast);
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        getForecast5days(lat, lon, 'metric', handleForecastResponseCallback);
+        getOneApiCall(lat, lon, 'metric', handleOneCallForecast);
+
+        // initialise leaflet maps
+        const map = L.map('mapid').setView([lat, lon], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
         //getForecast5days(lat, lon, 'metric', handleForecastResponseCallback);
         //getOneApiCall(lat, lon, 'metric', handleOneCallForecast);
@@ -109,16 +118,16 @@ const fillWeeklyWeatherPanel = (response) => {
     for (let day of days) {
         let date = new Date(day.dt * 1000);         //Converting seconds into miliseconds and into Date object
         html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
-            <p>${date.getDate()}.${date.getMonth()+1}</p>
+            <p>${date.getDate()}.${date.getMonth() + 1}</p>
             <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
-            <p>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt( day.temp.min)} &deg;</span></p>
+            <p>${parseInt(day.temp.max)} &deg; <span class="text-muted">${parseInt(day.temp.min)} &deg;</span></p>
             <p>${day.weather[0].description}</p></div>`;
     }
     $("#weekly-panel").innerHTML = html;
 };
 
 const fillHourlyBreakdownPanel = (response) => {
-    setTabsNames(response.list[0].dt); 
+    setTabsNames(response.list[0].dt);
     forecastList = response.list;
     fillHourlyBreakdown();
 }
@@ -126,12 +135,11 @@ const fillHourlyBreakdownPanel = (response) => {
 const fillHourlyBreakdown = () => {
     let htmlOutput = "";
 
-    for( let forecast of forecastList) {
-        let date = new Date(forecast.dt * 1000); 
+    for (let forecast of forecastList) {
+        let date = new Date(forecast.dt * 1000);
         //Check if the tab chosen by user corresponds to datetime of forecast
-        
-        if (weekDates[tabId].getDay() == date.getDay())
-        {
+
+        if (weekDates[tabId].getDay() == date.getDay()) {
             //Writing to the table
             htmlOutput += `<div class="col"><p>${date.getHours()}:00</p>
                 <p>${Math.round(forecast.main.temp)} &deg;</p>
@@ -145,7 +153,7 @@ const fillHourlyBreakdown = () => {
 //Set days of the tabs corresponding to API response data available
 //datetime - is the first datetime available in the response list
 const setTabsNames = (datetime) => {
-    let firstDate = new Date(datetime * 1000); 
+    let firstDate = new Date(datetime * 1000);
     weekDates.push(firstDate);
 
     $('#tab-1').innerText = getNameOfDay(firstDate.getDay());
