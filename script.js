@@ -2,6 +2,8 @@
 const ApiKey = 'f4a88f380ea81884743aec0bbf45f133';
 let lat;
 let lon;
+let mainAPIresponce;        // responce with curr and weekly weather forecast
+let threeHourAPIresponse;   // responce with 3-hour breakdown for next 7 days
 let tabId = 0;              // the index of day tab that was clicked
 let unit = 'metric';        // measurement units of the web page         
 let temp = "&deg;C";        // format of temperature output (C/F)
@@ -15,7 +17,7 @@ window.onload = () => {
         tabs[i].addEventListener('click', (event) => {
             tabId = i;
             console.log('clicked' + i);
-            fillHourlyBreakdown();
+            fillHourlyBreakdown(threeHourAPIresponse);
         });
     }
 
@@ -61,9 +63,9 @@ const handleOneCallForecast = (err, response) => {
     if (err) {
         console.log("Something happened");
     } else {
-        fillMainWeatherPanel(response);
-        fillWeeklyWeatherPanel(response);
-        console.log(response);
+        mainAPIresponce = response;
+        fillMainWeatherPanel(mainAPIresponce);
+        fillWeeklyWeatherPanel(mainAPIresponce);
     }
 };
 
@@ -148,14 +150,14 @@ const fillMainWeatherPanel = (currWeather) => {
 
 // Filling data in a form of 3 hour forecast for next 5 days
 const fillThreeHourBreakdownPanel = (response) => {
-    const weekDates = setTabsNames(response.list[0].dt);
-    const forecastThreeHoursList = response.list;
-    fillHourlyBreakdown(weekDates, forecastThreeHoursList);
+    threeHourAPIresponse = response.list;
+    fillHourlyBreakdown(threeHourAPIresponse);
 }   
 
-const fillHourlyBreakdown = (weekDates, forecastThreeHoursList) => {
+const fillHourlyBreakdown = (threeHourAPIresponse) => {
+    const weekDates = setTabsNames(threeHourAPIresponse[0].dt);
     let htmlOutput = "";
-    for (let forecast of forecastThreeHoursList) {
+    for (let forecast of threeHourAPIresponse) {
         let date = new Date(forecast.dt * 1000);
 
         //Check if the tab chosen by user corresponds to datetime of forecast
