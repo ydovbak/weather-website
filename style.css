@@ -85,6 +85,21 @@ a:hover {
   width: 100%;
 }
 
+.icon-center {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+}
+
+/*Charts*/
+
+.btn-blue {
+  background-color: #14213dc5;
+}
+
 /*
 .days-container .tab-content {
   border: 1px solid #eee;

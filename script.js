@@ -8,6 +8,7 @@ let tabId = 0;              // the index of day tab that was clicked
 let unit = 'metric';        // measurement units of the web page         
 let temp = "&deg;C";        // format of temperature output (C/F)
 let distance = "m";         // format of the distance output (meters/miles)
+let chartType = 'temperature';
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -21,16 +22,20 @@ window.onload = () => {
         });
     }
 
+    console.log('Determinning location...');
     navigator.geolocation.getCurrentPosition((pos) => {
         console.log(pos.coords);
         lat = pos.coords.latitude;
         lon = pos.coords.longitude;
 
         //PErforming API calls and outputing data into UI
+        console.log('Location found, fetching data...');
         updateUI(lat, lon, unit);
 
         // initialise leaflet maps
-        const map = L.map('mapid').setView([lat, lon], 13);
+        const map = L.map('mapid', {
+            scrollWheelZoom: false
+        }).setView([lat, lon], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
@@ -46,26 +51,62 @@ window.onload = () => {
         if (unit != "imperial") {
             unit = "imperial";
             //Resetting the data in the UI
-            updateUI(lat, lon, unit);   
+            updateUI(lat, lon, unit);
         }
-    })
+    });
 
     $("#metric").addEventListener('click', () => {
-        if (unit != "metric") { 
+        if (unit != "metric") {
             unit = "metric";
             //Resetting the data in the UI
-            updateUI(lat, lon, unit);   
+            updateUI(lat, lon, unit);
         }
-    })
+    });
+
+    //Charts click listeners
+    $('#chart-temp').addEventListener ('click', () => {
+        $('#chart-dropdown').innerText = "Temperature";
+        chartType = 'temperature';
+        createDailyChart(chartType, mainAPIresponce);
+    });
+
+    $('#chart-hum').addEventListener ('click', () => {
+        $('#chart-dropdown').innerText = "Humidity";
+        chartType = 'humidity';
+        createDailyChart(chartType, mainAPIresponce);
+    });
+
+    $('#chart-cloud').addEventListener ('click', () => {
+        $('#chart-dropdown').innerText = "Cloudiness";
+        chartType = 'cloudiness';
+        createDailyChart(chartType, mainAPIresponce);
+    });
 };
 
-const handleOneCallForecast = (err, response) => {
+const updateUI = (lat, lon, unit) => {
+    //Seting units and dropdown
+    if (unit == "metric") {
+        $('#dropdown').innerText = "Metric";
+        temp = "&deg;C";
+        distance = "m";
+    } else {
+        $('#dropdown').innerText = "Imperial";
+        temp = "&deg;F";
+        distance = "ml";
+    }
+    //Making API calls with new parameters
+    getForecast5days(lat, lon, unit, handleForecastResponseCallback);
+    getOneApiCall(lat, lon, unit, handleOneCallForecastCallback);
+};
+
+const handleOneCallForecastCallback = (err, response) => {
     if (err) {
         console.log("Something happened");
     } else {
         mainAPIresponce = response;
         fillMainWeatherPanel(mainAPIresponce);
         fillWeeklyWeatherPanel(mainAPIresponce);
+        createDailyChart(chartType, mainAPIresponce);
     }
 };
 
@@ -111,26 +152,12 @@ const ajaxGetRequest = (url, callback) => {
     xhr.send();
 };
 
-const updateUI = (lat, lon, unit) => {
-//Seting units and dropdown
-    if(unit == "metric") {
-        $('#dropdown').innerText = "Metric";
-        temp = "&deg;C";
-        distance = "m";
-    } else {
-        $('#dropdown').innerText = "Imperial";
-        temp = "&deg;F";
-        distance = "ml";
-    }
-    //Making API calls with new parameters
-    getForecast5days(lat, lon, unit, handleForecastResponseCallback);
-    getOneApiCall(lat, lon, unit, handleOneCallForecast); 
-};
+
 
 // Filling data about current weather into front panel shown to user
 const fillMainWeatherPanel = (currWeather) => {
-    $('#temperature').innerHTML = parseInt(currWeather.current.temp) + " " +  temp;
-    $('#feels-like').innerHTML = " " + parseInt(currWeather.current.feels_like) + " " +  temp;
+    $('#temperature').innerHTML = parseInt(currWeather.current.temp) + " " + temp;
+    $('#feels-like').innerHTML = " " + parseInt(currWeather.current.feels_like) + " " + temp;
     $('#humidity').innerText = " " + currWeather.current.humidity + " %";
     $('#wind-speed').innerText = " " + currWeather.current.wind_speed + " " + distance + "/s";
     $('#wind-dir').innerText = " " + getCardinalDirectionAndArrow(currWeather.current.wind_deg);
@@ -142,7 +169,7 @@ const fillMainWeatherPanel = (currWeather) => {
     //Setting visibility distance
     if (unit == "metric") {
         //Visibility is given in meters in API, converting to km
-        $('#visibility').innerText = " " + (parseInt(currWeather.current.visibility)/1000) + " km";
+        $('#visibility').innerText = " " + (parseInt(currWeather.current.visibility) / 1000) + " km";
     } else {
         $('#visibility').innerText = " " + currWeather.current.visibility + " miles";
     }
@@ -152,7 +179,7 @@ const fillMainWeatherPanel = (currWeather) => {
 const fillThreeHourBreakdownPanel = (response) => {
     threeHourAPIresponse = response.list;
     fillHourlyBreakdown(threeHourAPIresponse);
-}   
+}
 
 const fillHourlyBreakdown = (threeHourAPIresponse) => {
     const weekDates = setTabsNames(threeHourAPIresponse[0].dt);
@@ -184,7 +211,7 @@ const fillWeeklyWeatherPanel = (response) => {
 
     for (let day of sevenDaysWeather) {
         //Converting seconds into miliseconds and into Date object
-        let date = new Date(day.dt * 1000);         
+        let date = new Date(day.dt * 1000);
         html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
             <p>${date.getDate()}.${date.getMonth() + 1}</p>
             <p><img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"></p>
@@ -224,4 +251,63 @@ const setTabsNames = (datetime) => {
     weekDates.push(fifthDate);
 
     return weekDates;
+}
+
+const extractLabelsAndData = (type, daily) => {
+
+    const labels = [];
+    const data = [];
+    // dd = day data
+    for (const dd of daily) {
+
+        const date = new Date(dd.dt * 1000);
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        labels.push(day + '/' + month);
+
+        if (type == 'temperature') {
+            data.push(dd.temp.day);
+        } else if (type == 'humidity') {
+            data.push(dd.humidity);
+        } else if (type === 'cloudiness') {
+            data.push(dd.clouds);
+        }
+    }
+
+    return {
+        labels: labels,
+        data: data
+    };
+}
+
+const createDailyChart = (type, response) => {
+
+    const chartData = extractLabelsAndData(type, response.daily);
+
+    const ctx = $('#chart-canvas').getContext('2d');
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                data: chartData.data,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(252, 163, 17, 1)',
+                borderWidth: 3,
+                fill: false
+            }]
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
 }
