@@ -28,7 +28,7 @@ window.onload = () => {
         }
     });
 
-
+    //Geolocation
     console.log('Determinning location...');
     navigator.geolocation.getCurrentPosition((pos) => {
         console.log(pos.coords);
@@ -52,13 +52,50 @@ window.onload = () => {
         console.error(err);
     });
 
+    
+
+    //Displaying autocomplete panel
+
+    const acItems = document.querySelectorAll(".autocomplete-item");
+    for (let item of acItems) {
+        item.addEventListener('click', (event) => {
+            
+            
+            hideAutocompletePanel();
+        });
+    }
 
 
+    $('#search-city-input').addEventListener('focus', () => {
+        const panelEl = $('#autocomplete-panel');
+        //Obtaining the coordinates where autocomplete panel should appear
+        let coord = $('#search-city-input').getBoundingClientRect();
+        panelEl.style.top = (coord.y + coord.height) + 'px';
+        panelEl.style.left = coord.x + 'px';
+        panelEl.style.width = coord.width + 'px';
+        showAutocompletePanel();
+    });
+
+
+    document.addEventListener('click', (event) => {
+
+        const panelEl = $('#autocomplete-panel');
+        // clicked on input
+        const isInput = event.target === $('#search-city-input');
+        // check if clicked within panel
+        const isWithinPanel = panelEl.contains(event.target);
+
+        if(!isInput && !isWithinPanel) {
+            hideAutocompletePanel();
+        }
+    });
 
     //Search button click lestener
     $('#search-btn').addEventListener('click', () => {
 
     });
+
+
 
 
     // Imperial - Metric Click listeners 
@@ -87,7 +124,7 @@ window.onload = () => {
             console.log('clicked' + i);
             fillHourlyBreakdown(threeHourAPIresponse);
         });
-    }
+    };
 
     //Charts click listeners
     $('#chart-temp').addEventListener('click', () => {

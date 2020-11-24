@@ -26,11 +26,12 @@ body {
 
 /*Autocomplete panel*/
 #autocomplete-panel {
-  width: 200px;
-  height: 265px;
-  background-color: lawngreen;
+  background-color: white;
   position: absolute;
   display: none;
+  z-index: 9999;
+  top: 0;
+  left: 0;
 }
 
 /*Styling Main Weather Card*/

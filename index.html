@@ -37,7 +37,7 @@
     <div class="d-flex text-white shadow-sm py-3 align-items-center mb-4 color-main">
         <div class="container my-0">
             <h4 class="mb-1 brand-line d-inline">Weather</h4>
-            <input type="text" class="form-control d-inline w-75 ml-2 mr-0 mb-1" id="search-city-name"
+            <input type="text" class="form-control d-inline w-75 ml-2 mr-0 mb-1" id="search-city-input"
                 placeholder="City name">
            <button class="btn btn-warning d-inline mb-1" type="button" id="search-btn"><i
                 class="fas fa-search"></i></button>
@@ -55,13 +55,13 @@
     </div>
 
     <!--Autocomplete Panel-->
-    <div id="autocomplete-panel">
-        <ul>
-            <li>something</li>
-            <li>something</li>
-            <li>something</li>
-            <li>something</li>
-            <li>something</li>
+    <div class="shadow" id="autocomplete-panel">
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-action autocomplete-item">something</li>
+            <li class="list-group-item list-group-item-action autocomplete-item">something</li>
+            <li class="list-group-item list-group-item-action autocomplete-item">something</li>
+            <li class="list-group-item list-group-item-action autocomplete-item">something</li>
+            <li class="list-group-item list-group-item-action autocomplete-item">something</li>
         </ul>
     </div>
 

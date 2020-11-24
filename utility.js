@@ -1,18 +1,6 @@
 //This array is used for converting number of day from Date class into string day
 const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday",  "Thursday", "Friday", "Saturday"];
 
-function Forecast(temp, clouds, icon, humidity, preassure, windDeg, windSpeed, time) {
-    this.temp = temp;
-    this.clouds = clouds;
-    this.icon = icon;
-    this.humidity = humidity;
-    this.preassure = preassure;
-    this.windDeg = windDeg;
-    this.windSpeed = windSpeed;
-    this.time = time;
-
-}
-
 function getCardinalDirectionAndArrow(angle) {
     const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW'];
     return directions[Math.round(angle / 45) % 8];
@@ -35,5 +23,15 @@ function getNameOfDay(day) {
     }
 
     return weekday[day];
+}
+
+const hideAutocompletePanel = () => {
+    const panelEl = $('#autocomplete-panel');
+    panelEl.style.display = "none";
+}
+
+const showAutocompletePanel = () => {
+    const panelEl = $('#autocomplete-panel');
+    panelEl.style.display = "block";
 }
 
