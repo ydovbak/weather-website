@@ -9,18 +9,25 @@ let unit = 'metric';        // measurement units of the web page
 let temp = "&deg;C";        // format of temperature output (C/F)
 let distance = "m";         // format of the distance output (meters/miles)
 let chartType = 'temperature';
+let cities = [];
 
 const $ = (selector) => document.querySelector(selector);
 
 window.onload = () => {
-    const tabs = document.querySelectorAll(".nav-link");
-    for (let i = 0; i < tabs.length; i++) {
-        tabs[i].addEventListener('click', (event) => {
-            tabId = i;
-            console.log('clicked' + i);
-            fillHourlyBreakdown(threeHourAPIresponse);
-        });
-    }
+
+    //Parse the city data
+    let citiesJSONpath = 'current.city.list.min.json';
+    ajaxGetRequest(citiesJSONpath, (err, response) => {
+        if (err) {
+            console.log('Failed loading cities');
+        } else {
+            cities = response.map(city => {
+                return { name: city.name, lat: city.coord.lat, lon: city.coord.lon, country:city.country };
+            });
+            console.log('Cities: ', cities.slice(0, 10));
+        }
+    });
+
 
     console.log('Determinning location...');
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -46,11 +53,13 @@ window.onload = () => {
     });
 
 
+
+
     //Search button click lestener
     $('#search-btn').addEventListener('click', () => {
-        
+
     });
-    
+
 
     // Imperial - Metric Click listeners 
     $("#imperial").addEventListener('click', () => {
@@ -70,20 +79,30 @@ window.onload = () => {
         }
     });
 
+    //Weekly Tab Click listeners
+    const tabs = document.querySelectorAll(".nav-link");
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener('click', (event) => {
+            tabId = i;
+            console.log('clicked' + i);
+            fillHourlyBreakdown(threeHourAPIresponse);
+        });
+    }
+
     //Charts click listeners
-    $('#chart-temp').addEventListener ('click', () => {
+    $('#chart-temp').addEventListener('click', () => {
         $('#chart-dropdown').innerText = "Temperature";
         chartType = 'temperature';
         createDailyChart(chartType, mainAPIresponce);
     });
 
-    $('#chart-hum').addEventListener ('click', () => {
+    $('#chart-hum').addEventListener('click', () => {
         $('#chart-dropdown').innerText = "Humidity";
         chartType = 'humidity';
         createDailyChart(chartType, mainAPIresponce);
     });
 
-    $('#chart-cloud').addEventListener ('click', () => {
+    $('#chart-cloud').addEventListener('click', () => {
         $('#chart-dropdown').innerText = "Cloudiness";
         chartType = 'cloudiness';
         createDailyChart(chartType, mainAPIresponce);

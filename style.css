@@ -24,6 +24,15 @@ body {
   color: #14213dc5;
 }
 
+/*Autocomplete panel*/
+#autocomplete-panel {
+  width: 200px;
+  height: 265px;
+  background-color: lawngreen;
+  position: absolute;
+  display: none;
+}
+
 /*Styling Main Weather Card*/
 .weather-card {
   border-radius: 5px;
