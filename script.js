@@ -177,6 +177,9 @@ const fillMainWeatherPanel = (currWeather) => {
 
 // Filling data in a form of 3 hour forecast for next 5 days
 const fillThreeHourBreakdownPanel = (response) => {
+    //Writing country name
+    $('#city-name').innerText += ', ' + response.city.country;
+
     threeHourAPIresponse = response.list;
     fillHourlyBreakdown(threeHourAPIresponse);
 }
