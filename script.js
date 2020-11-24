@@ -45,6 +45,13 @@ window.onload = () => {
         console.error(err);
     });
 
+
+    //Search button click lestener
+    $('#search-btn').addEventListener('click', () => {
+        
+    });
+    
+
     // Imperial - Metric Click listeners 
     $("#imperial").addEventListener('click', () => {
         //Check if units should be changed

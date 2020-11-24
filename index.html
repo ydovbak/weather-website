@@ -37,11 +37,14 @@
     <div class="d-flex text-white shadow-sm py-3 align-items-center mb-4 color-main">
         <div class="container my-0">
             <h4 class="mb-1 brand-line d-inline">Weather</h4>
-           <input type="text" class="form-control d-inline w-75 ml-2 mr-0" id="search-city-name" placeholder="City name"">
-           <button class="btn btn-warning d-inline" type="button" id="search-btn"><i class="fas fa-search"></i></button>
- 
-            <div class="dropdown float-right pl-3 d-inline">
-                <button class="btn brand-btn dropdown-toggle" id="dropdown" type="button" data-toggle="dropdown">Metric
+            <input type="text" class="form-control d-inline w-75 ml-2 mr-0 mb-1" id="search-city-name"
+                placeholder="City name"">
+           <button class="btn btn-warning d-inline mb-1" type="button" id="search-btn"><i
+                class="fas fa-search"></i></button>
+
+            <div class="dropdown float-right d-inline">
+                <button class="btn btn-warning dropdown-toggle" id="dropdown" type="button"
+                    data-toggle="dropdown">Metric
                     <span class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" id="imperial">Imperial (Fahrenheit, Miles)</a></li>
@@ -119,14 +122,15 @@
         <h3 class="text-center"> <span class="brand-line">Charts</span></h3>
 
         <div class="dropdown m-1 p-1 text-center">
-            <button class="btn dropdown-toggle btn-blue text-white" id="chart-dropdown" type="button" data-toggle="dropdown"> Temperature
+            <button class="btn dropdown-toggle btn-blue text-white" id="chart-dropdown" type="button"
+                data-toggle="dropdown"> Temperature
                 <span class="caret"></span></button>
             <ul class="dropdown-menu">
                 <li>
                     <a class="dropdown-item d-flex align-items-center" id="chart-temp">
                         <i class="fas fa-temperature-high brand-color icon-center mr-3"></i>
                         <span>Temperature</span>
-                        </a>
+                    </a>
                 </li>
                 <li>
                     <a class="dropdown-item d-flex align-items-center" id="chart-hum">
