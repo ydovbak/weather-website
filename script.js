@@ -22,7 +22,7 @@ window.onload = () => {
             console.log('Failed loading cities');
         } else {
             cities = response.map(city => {
-                return { name: city.name, lat: city.coord.lat, lon: city.coord.lon, country:city.country };
+                return { name: city.name, lat: city.coord.lat, lon: city.coord.lon, country: city.country };
             });
             console.log('Cities: ', cities.slice(0, 10));
         }
@@ -52,27 +52,57 @@ window.onload = () => {
         console.error(err);
     });
 
-    
 
-    //Displaying autocomplete panel
-
+    //
+    //autocomplete panel
+    //
     const acItems = document.querySelectorAll(".autocomplete-item");
     for (let item of acItems) {
         item.addEventListener('click', (event) => {
-            
-            
+
+
             hideAutocompletePanel();
         });
-    }
+    };
+
+
+    $('#search-city-input').addEventListener('input', (event) => {
+        const acListEl = $('#autocomplete-list');
+        let citySearchName = $('#search-city-input').value;
+
+        if(citySearchName.length < 1) {
+            acListEl.innerHTML = '';
+            return;
+        }
+
+        const pattern = new RegExp(`${citySearchName}`, 'i');
+
+        const filteredCities = cities.filter(city => pattern.test(city.name)).slice(0, 5);
+
+        // remove all children
+        acListEl.innerHTML = '';
+        for (let cityId = 0; cityId<filteredCities.length; cityId++) {
+            const acItemEl = document.createElement('li');
+            acItemEl.classList.add('list-group-item', 'list-group-item-action', 'autocomplete-item');
+            acItemEl.innerHTML = `${filteredCities[cityId].name}, ${filteredCities[cityId].country}`;
+            acItemEl.setAttribute("data-index", cityId)
+            acListEl.appendChild(acItemEl);
+
+            acItemEl.addEventListener('click', (event) => {
+                // Getting the index of <li> that was clicked
+                const cityIndex = parseInt( event.target.attributes['data-index'].value);
+                lat = filteredCities[cityIndex].lat;
+                lon = filteredCities[cityIndex].lon;
+                updateUI(lat, lon, unit);
+                hideAutocompletePanel();
+            });
+        }
+    });
+
 
 
     $('#search-city-input').addEventListener('focus', () => {
-        const panelEl = $('#autocomplete-panel');
-        //Obtaining the coordinates where autocomplete panel should appear
-        let coord = $('#search-city-input').getBoundingClientRect();
-        panelEl.style.top = (coord.y + coord.height) + 'px';
-        panelEl.style.left = coord.x + 'px';
-        panelEl.style.width = coord.width + 'px';
+        placeAutocompletePanel();   //finding the location where panel must appear
         showAutocompletePanel();
     });
 
@@ -85,7 +115,7 @@ window.onload = () => {
         // check if clicked within panel
         const isWithinPanel = panelEl.contains(event.target);
 
-        if(!isInput && !isWithinPanel) {
+        if (!isInput && !isWithinPanel) {
             hideAutocompletePanel();
         }
     });
