@@ -10,6 +10,7 @@ let temp = "&deg;C";        // format of temperature output (C/F)
 let distance = "m";         // format of the distance output (meters/miles)
 let chartType = 'temperature';
 let cities = [];
+let map;
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -40,7 +41,7 @@ window.onload = () => {
         updateUI(lat, lon, unit);
 
         // initialise leaflet maps
-        const map = L.map('mapid', {
+        map = L.map('mapid', {
             scrollWheelZoom: false
         }).setView([lat, lon], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -93,7 +94,9 @@ window.onload = () => {
                 const cityIndex = parseInt( event.target.attributes['data-index'].value);
                 lat = filteredCities[cityIndex].lat;
                 lon = filteredCities[cityIndex].lon;
+                $('#search-city-input').value = "";
                 updateUI(lat, lon, unit);
+                updateMap();
                 hideAutocompletePanel();
             });
         }
@@ -406,4 +409,10 @@ const createDailyChart = (type, response) => {
             }
         }
     });
+};
+
+const updateMap = () => {
+    //Update map
+    map.setView([lat, lon], 13);
+  
 }
