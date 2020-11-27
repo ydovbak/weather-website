@@ -16,7 +16,9 @@ const $ = (selector) => document.querySelector(selector);
 
 window.onload = () => {
 
-    //Parse the city data
+    //
+    // parse the city data
+    //
     let citiesJSONpath = 'current.city.list.min.json';
     ajaxGetRequest(citiesJSONpath, (err, response) => {
         if (err) {
@@ -25,18 +27,19 @@ window.onload = () => {
             cities = response.map(city => {
                 return { name: city.name, lat: city.coord.lat, lon: city.coord.lon, country: city.country };
             });
-            console.log('Cities: ', cities.slice(0, 10));
         }
     });
 
-    //Geolocation
+    //
+    // geolocation
+    //
     console.log('Determinning location...');
     navigator.geolocation.getCurrentPosition((pos) => {
         console.log(pos.coords);
         lat = pos.coords.latitude;
         lon = pos.coords.longitude;
 
-        //PErforming API calls and outputing data into UI
+        // performing API calls and outputing data into UI
         console.log('Location found, fetching data...');
         updateUI(lat, lon, unit);
 
@@ -49,44 +52,43 @@ window.onload = () => {
         }).addTo(map);
 
     }, err => {
-        alert('could not determine geo location, please enter your city');
+        alert('Could not determine geo location, please enter your city');
         console.error(err);
     });
 
 
     //
-    //autocomplete panel
+    // autocomplete panel
     //
-    const acItems = document.querySelectorAll(".autocomplete-item");
-    for (let item of acItems) {
-        item.addEventListener('click', (event) => {
-
-
-            hideAutocompletePanel();
-        });
-    };
-
-
     $('#search-city-input').addEventListener('input', (event) => {
-        const acListEl = $('#autocomplete-list');
-        let citySearchName = $('#search-city-input').value;
+        
+        // <ul> element of the autocomplete panel
+        const acListEl = $('#autocomplete-list');   
+        let citySearchName = event.target.value;
 
-        if(citySearchName.length < 1) {
+        // search is not performed until user input is more than 2 chars
+        if(citySearchName.length < 2) {
             acListEl.innerHTML = '';
             return;
         }
 
+        // filtering 5 cities that start with same chars as user input
         const pattern = new RegExp(`${citySearchName}`, 'i');
-
         const filteredCities = cities.filter(city => pattern.test(city.name)).slice(0, 5);
 
-        // remove all children
+        // remove all children that were created previously
         acListEl.innerHTML = '';
+
+
         for (let cityId = 0; cityId<filteredCities.length; cityId++) {
+
+            // create <li> element for each city that matched the search
             const acItemEl = document.createElement('li');
             acItemEl.classList.add('list-group-item', 'list-group-item-action', 'autocomplete-item');
             acItemEl.innerHTML = `${filteredCities[cityId].name}, ${filteredCities[cityId].country}`;
             acItemEl.setAttribute("data-index", cityId)
+
+            // appending the <li> into <ul>
             acListEl.appendChild(acItemEl);
 
             acItemEl.addEventListener('click', (event) => {
@@ -102,18 +104,19 @@ window.onload = () => {
         }
     });
 
-
-
+    // show autocomplete panel when search bar in focus
     $('#search-city-input').addEventListener('focus', () => {
-        placeAutocompletePanel();   //finding the location where panel must appear
+        //finding the location where panel must appear
+        placeAutocompletePanel();   
         showAutocompletePanel();
     });
 
 
+    // hide autocomplete panel when user clicks outside the panel
     document.addEventListener('click', (event) => {
 
         const panelEl = $('#autocomplete-panel');
-        // clicked on input
+        // checking if user clicked on search bar input
         const isInput = event.target === $('#search-city-input');
         // check if clicked within panel
         const isWithinPanel = panelEl.contains(event.target);
@@ -123,20 +126,18 @@ window.onload = () => {
         }
     });
 
-    //Search button click lestener
-    $('#search-btn').addEventListener('click', () => {
-
-    });
 
 
-
-
+    //
     // Imperial - Metric Click listeners 
+    //
     $("#imperial").addEventListener('click', () => {
-        //Check if units should be changed
+
+        // check if units should be changed
         if (unit != "imperial") {
             unit = "imperial";
-            //Resetting the data in the UI
+
+            // resetting the data in the UI
             updateUI(lat, lon, unit);
         }
     });
@@ -144,12 +145,13 @@ window.onload = () => {
     $("#metric").addEventListener('click', () => {
         if (unit != "metric") {
             unit = "metric";
-            //Resetting the data in the UI
             updateUI(lat, lon, unit);
         }
     });
 
-    //Weekly Tab Click listeners
+    //
+    // Weekly panel 
+    //
     const tabs = document.querySelectorAll(".nav-link");
     for (let i = 0; i < tabs.length; i++) {
         tabs[i].addEventListener('click', (event) => {
@@ -159,7 +161,9 @@ window.onload = () => {
         });
     };
 
-    //Charts click listeners
+    //
+    // Charts 
+    //
     $('#chart-temp').addEventListener('click', () => {
         $('#chart-dropdown').innerText = "Temperature";
         chartType = 'temperature';
@@ -177,7 +181,7 @@ window.onload = () => {
         chartType = 'cloudiness';
         createDailyChart(chartType, mainAPIresponce);
     });
-};
+}; //end of window.onload()
 
 const updateUI = (lat, lon, unit) => {
     //Seting units and dropdown
@@ -190,7 +194,8 @@ const updateUI = (lat, lon, unit) => {
         temp = "&deg;F";
         distance = "ml";
     }
-    //Making API calls with new parameters
+
+    // making API calls with new parameters
     getForecast5days(lat, lon, unit, handleForecastResponseCallback);
     getOneApiCall(lat, lon, unit, handleOneCallForecastCallback);
 };
@@ -243,14 +248,13 @@ const ajaxGetRequest = (url, callback) => {
         }
     };
     xhr.onerror = e => console.log(e.message);
-
     xhr.open("GET", url);
     xhr.send();
 };
 
 
 
-// Filling data about current weather into front panel shown to user
+// filling data about current weather into front panel shown to user
 const fillMainWeatherPanel = (currWeather) => {
     $('#temperature').innerHTML = parseInt(currWeather.current.temp) + " " + temp;
     $('#feels-like').innerHTML = " " + parseInt(currWeather.current.feels_like) + " " + temp;
@@ -262,18 +266,18 @@ const fillMainWeatherPanel = (currWeather) => {
     $('#pressure').innerText = " " + (currWeather.current.pressure / 100) + " mb"; //Converting pressure from hpa to mb
     $('#weather-icon').src = `https://openweathermap.org/img/wn/${currWeather.current.weather[0].icon}@4x.png`;
 
-    //Setting visibility distance
+    // setting visibility distance
     if (unit == "metric") {
-        //Visibility is given in meters in API, converting to km
+        // visibility is given in meters in API, converting to km
         $('#visibility').innerText = " " + (parseInt(currWeather.current.visibility) / 1000) + " km";
     } else {
         $('#visibility').innerText = " " + currWeather.current.visibility + " miles";
     }
 };
 
-// Filling data in a form of 3 hour forecast for next 5 days
+// filling data in a form of 3 hour forecast for next 5 days
 const fillThreeHourBreakdownPanel = (response) => {
-    //Writing country name
+    // writing country name
     $('#city-name').innerText += ', ' + response.city.country;
 
     threeHourAPIresponse = response.list;
@@ -286,9 +290,9 @@ const fillHourlyBreakdown = (threeHourAPIresponse) => {
     for (let forecast of threeHourAPIresponse) {
         let date = new Date(forecast.dt * 1000);
 
-        //Check if the tab chosen by user corresponds to datetime of forecast
+        // check if the tab chosen by user corresponds to datetime of forecast
         if (weekDates[tabId].getDay() == date.getDay()) {
-            //Writing to the table
+            // writing to the table
             htmlOutput += `<div class="col"><p> <span class='brand-line'>${date.getHours()}:00</span></p>
                 <p class='my-2 py-2 temp-text'>${Math.round(forecast.main.temp)} ${temp} <img src="https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" width='40px' hight='40px'></p>
                 <p class='pb-1 mb-0'><i class="fas fa-cloud brand-color"></i> ${forecast.clouds.all}%</p>
@@ -302,14 +306,14 @@ const fillHourlyBreakdown = (threeHourAPIresponse) => {
 }
 
 const fillWeeklyWeatherPanel = (response) => {
-    //Next seven days forecast is giving us records of weather forecast for today AND next 7 days
-    //which is 8 days in total. We want to show weekly forecast for today and next 6 days, therefore
-    //using slice() metod we get rid of an extra day
+    // next seven days forecast is giving us records of weather forecast for today AND next 7 days
+    // which is 8 days in total. We want to show weekly forecast for today and next 6 days, therefore
+    // using slice() metod we get rid of an extra day
     let sevenDaysWeather = response.daily.slice(0, -1);
     let html = "";
 
     for (let day of sevenDaysWeather) {
-        //Converting seconds into miliseconds and into Date object
+        // converting seconds into miliseconds and into Date object
         let date = new Date(day.dt * 1000);
         html += `<div class="col"><p>${getNameOfDay(date.getDay())}</p>
             <p>${date.getDate()}.${date.getMonth() + 1}</p>
@@ -322,9 +326,9 @@ const fillWeeklyWeatherPanel = (response) => {
 
 
 
-//Set days of the tabs corresponding to API response data available
-//datetime - is the first datetime available in the response list
-//of three hour weather API call
+// set days of the tabs corresponding to API response data available
+// datetime - is the first datetime available in the response list
+// of three hour weather API call
 const setTabsNames = (datetime) => {
     let weekDates = [];
     let firstDate = new Date(datetime * 1000);
@@ -332,7 +336,7 @@ const setTabsNames = (datetime) => {
 
     $('#tab-1').innerText = getNameOfDay(firstDate.getDay());
 
-    //Figure out consequent days ans set appropriate tab names
+    // figure out consequent days and set appropriate tab names
     const secondDate = new Date(firstDate.getTime() + 86400000);
     $('#tab-2').innerText = getNameOfDay(secondDate.getDay());
     weekDates.push(secondDate);
@@ -352,6 +356,7 @@ const setTabsNames = (datetime) => {
     return weekDates;
 }
 
+// extracting dates as lables; temp/humidity/cloudiness as data
 const extractLabelsAndData = (type, daily) => {
 
     const labels = [];
@@ -373,12 +378,14 @@ const extractLabelsAndData = (type, daily) => {
         }
     }
 
+    // return object with two arrays
     return {
         labels: labels,
         data: data
     };
 }
 
+// method for creating and updating charts
 const createDailyChart = (type, response) => {
 
     const chartData = extractLabelsAndData(type, response.daily);
@@ -414,5 +421,4 @@ const createDailyChart = (type, response) => {
 const updateMap = () => {
     //Update map
     map.setView([lat, lon], 13);
-  
 }
