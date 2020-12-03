@@ -19,7 +19,7 @@ window.onload = () => {
     //
     // parse the city data
     //
-    let citiesJSONpath = 'current.city.list.min.json';
+    let citiesJSONpath = 'city.list.json';
     ajaxGetRequest(citiesJSONpath, (err, response) => {
         if (err) {
             console.log('Failed loading cities');
@@ -54,6 +54,14 @@ window.onload = () => {
     }, err => {
         alert('Could not determine geo location, please enter your city');
         console.error(err);
+
+        // set the template for map when it will be searched by user
+        map = L.map('mapid', {
+            scrollWheelZoom: false
+        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
     });
 
 
