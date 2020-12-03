@@ -134,6 +134,11 @@ window.onload = () => {
         }
     });
 
+    // reposition autocomplete panel when window is resized
+    window.addEventListener("resize", () => {
+        placeAutocompletePanel(); 
+    });
+
 
 
     //
