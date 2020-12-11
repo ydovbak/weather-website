@@ -2,7 +2,7 @@
 const ApiKey = 'f4a88f380ea81884743aec0bbf45f133';
 let lat;
 let lon;
-let mainAPIresponce;        // responce with curr and weekly weather forecast
+let mainAPIresponce;        // responce with current and weekly weather forecast
 let threeHourAPIresponse;   // responce with 3-hour breakdown for next 7 days
 let tabId = 0;              // the index of day tab that was clicked
 let unit = 'metric';        // measurement units of the web page         
@@ -196,8 +196,9 @@ window.onload = () => {
     });
 }; //end of window.onload()
 
+
 const updateUI = (lat, lon, unit) => {
-    //Seting units and dropdown
+    // seting units and dropdown
     if (unit == "metric") {
         $('#dropdown').innerText = "Metric";
         temp = "&deg;C";
@@ -209,13 +210,13 @@ const updateUI = (lat, lon, unit) => {
     }
 
     // making API calls with new parameters
-    getForecast5days(lat, lon, unit, handleForecastResponseCallback);
-    getOneApiCall(lat, lon, unit, handleOneCallForecastCallback);
+    getForecast5days(lat, lon, unit, handle5daysForecastCallback);
+    getCurrDayWeather(lat, lon, unit, handleCurrDayForecastCallback);
 };
 
-const handleOneCallForecastCallback = (err, response) => {
+const handleCurrDayForecastCallback = (err, response) => {
     if (err) {
-        console.log("Something happened");
+        console.log("Error in API call");
     } else {
         mainAPIresponce = response;
         fillMainWeatherPanel(mainAPIresponce);
@@ -224,9 +225,9 @@ const handleOneCallForecastCallback = (err, response) => {
     }
 };
 
-const handleForecastResponseCallback = (err, response) => {
+const handle5daysForecastCallback = (err, response) => {
     if (err) {
-        alert('Something happened');
+        alert('Error in API call');
     } else {
         const city = response.city;
         $('#city-name').innerText = city.name;
@@ -235,7 +236,7 @@ const handleForecastResponseCallback = (err, response) => {
     }
 };
 
-const getOneApiCall = (lat, lon, unit, callback) => {
+const getCurrDayWeather = (lat, lon, unit, callback) => {
     const parts = 'minutely,hourly,alerts';
     const URL = `https://api.openweathermap.org/data/2.5/onecall?units=${unit}&lat=${lat}&lon=${lon}&exclude=${parts}&appid=${ApiKey}`;
     ajaxGetRequest(URL, callback);
